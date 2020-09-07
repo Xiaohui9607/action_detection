@@ -43,7 +43,7 @@ def extrac_images(im_path):
     images = [np.array(PIL.Image.open(image)) for image in images]
     ret = []
     for i in range(0, len(images) - SEQUENCE_LENGTH, STEP):
-        ret.append(np.concatenate(images[i:i + SEQUENCE_LENGTH], axis=0))
+        ret.append(np.stack(images[i:i + SEQUENCE_LENGTH]))
     # try:
     #     images = np.stack(images)
     # except:
@@ -61,6 +61,7 @@ if __name__ == '__main__':
     classes = os.path.join(data_dir, "kitchen_classname.mat")
     classes = ['none']+[str(cls[0]) if cls[0] else '' for cls in scipy.io.loadmat(classes)['kitchen_classname'][0]]
 
+
     for i, images_path in enumerate(images_paths):
         print('i', i)
         datapoint_name = images_path.split('/')[-1]
@@ -70,8 +71,9 @@ if __name__ == '__main__':
         labels_list = extract_labels(label_path)
         for j, a_seq in enumerate(imgs_list):
             out = {}
-            out['images'] = imgs_list
-            out['labels'] = labels_list
+            out['images'] = a_seq
+            out['labels'] = labels_list[j]
+
             if not os.path.exists(out_dir):
                 os.makedirs(out_dir)
             pkl.dump(out, open(os.path.join(out_dir, "{}_{}.pkl".format(j, i)), 'wb'))
