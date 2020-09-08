@@ -1,0 +1,13 @@
+------------ Options -------------
+batch_size: 32
+channels: 3
+data_dir: ../data/watch-n-bot/fridge_k1/out
+device: cpu
+epochs: 30
+height: 64
+learning_rate: 0.001
+output_dir: weight
+pretrained_model: 
+print_interval: 100
+sequence_length: 10
+width: 64
