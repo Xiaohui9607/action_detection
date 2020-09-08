@@ -109,6 +109,7 @@ if __name__ == '__main__':
     tr, vl = build_dataloader(opt)
 
     for index, (a,b) in enumerate(tr):
+        # a: 5 x 10 x c x w x h
         # imgs = a[0].unbind(0)
         # imgs = list(map(lambda x: (x.permute([1, 2, 0]).numpy()*255).squeeze().astype(np.uint8), imgs))
         # for index, img in enumerate(imgs):

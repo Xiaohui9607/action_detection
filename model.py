@@ -4,7 +4,7 @@ from torch import nn
 import torch.optim as optim
 import cv2
 import numpy as np
-from networks import network
+from networks import network, NUM_BEHAVRIORS
 from dataloader import build_dataloader
 from torch.nn import functional as F
 
@@ -31,12 +31,14 @@ class Model():
         running_loss = 0.0
         for iter_, (images, labels) in enumerate(self.dataloader['train']):
             self.net.zero_grad()
-            images = images.permute([1, 0, 2, 3, 4]).unbind(0)
-            print(labels)
+            images = images.permute([0, 1, 2, 3, 4]).unbind(0)
+            labels = labels.to(torch.int64)
+            labels = labels.view(-1)
+            # labels = torch.nn.functional.one_hot(labels.to(torch.int64), NUM_BEHAVRIORS)
 
             predicted_labels = self.net(images)
-            print(predicted_labels)
-            # exit(3)
+            predicted_labels = predicted_labels.view(-1, NUM_BEHAVRIORS)
+
             loss = self.criterion(predicted_labels, labels)
             loss.backward()
 
@@ -57,11 +59,14 @@ class Model():
         correct = 0
         total = 0
         with torch.no_grad():
-            for (images, labels) in self.dataloader['test']:
-                images = images.permute([1, 0, 2, 3, 4]).unbind(0)
+            for (images, labels) in self.dataloader['valid']:
+                images = images.permute([0, 1, 2, 3, 4]).unbind(0)
                 predicted_labels = self.net(images)
-                _, predicted = torch.max(predicted_labels.data, 1)
+                _, predicted = torch.max(predicted_labels.data, 2)
+
+                labels = labels.to(torch.int64)
                 total += labels.size(0)
+
                 correct += (predicted == labels).sum().item()
 
         print('Accuracy of the network on the 10000 test images: %d %%' % (
@@ -86,7 +91,3 @@ if __name__ == "__main__":
     opt.batch_size = 2
     my_model = Model(opt)
     my_model.train()
-    # tr, vl = build_dataloader(opt)
-
-
-

@@ -4,7 +4,6 @@ from torch import nn
 from torch.nn import functional as F
 from .layer import ConvLSTM
 
-RELU_SHIFT = 1e-12
 DNA_KERN_SIZE = 5
 NUM_BEHAVRIORS = 16
 
@@ -66,12 +65,9 @@ class network(nn.Module):
         # N * 32 * H * W -> N * 3 * H * W
         self.enc7 = nn.ConvTranspose2d(in_channels=lstm_size[6], out_channels=channels, kernel_size=1, stride=1)
 
-        # in_dim = int(lstm_size[4] * self.height * self.width / 64)
-        # self.fc1 = nn.Linear(in_dim, DNA_KERN_SIZE * DNA_KERN_SIZE * 10)
-        # self.fc2 = nn.Linear(DNA_KERN_SIZE * DNA_KERN_SIZE * 10, NUM_BEHAVRIORS)
-
-        self.fc1 = nn.Linear(64, 20)
+        self.fc1 = nn.Linear(12288, 20)
         self.fc2 = nn.Linear(20, NUM_BEHAVRIORS)
+
 
     def forward(self, images, train=True):
         """
@@ -126,10 +122,15 @@ class network(nn.Module):
             enc6 = self.enc6_norm(torch.relu(self.enc6(lstm7)))
 
             enc7 = torch.relu(self.enc7(enc6))
+            enc7 = enc7.view(10, -1)
 
             fc1 = torch.relu(self.fc1(enc7))
             fc2 = torch.relu(self.fc2(fc1))
+            fc2 = torch.softmax(fc2, dim=1)
+
             labels_list_prob.append(fc2)
+
+        labels_list_prob = torch.stack(labels_list_prob)
 
         return labels_list_prob
 
@@ -143,12 +144,3 @@ if __name__ == '__main__':
     opt.batch_size = 2
 
     my_network = network(opt)
-
-
-
-
-
-
-
-
-
