@@ -46,7 +46,7 @@ class Model():
 
             running_loss += loss.item()
             if iter_ % self.opt.print_interval == 0:
-                print('[%d, %5d] loss: %.3f' %(epoch + 1, iter_ + 1, running_loss / self.opt.print_interval))
+                print('[%d, %5d] loss: %.3f' %(epoch + 1, iter_ + 1, running_loss / len(labels)))
                 running_loss = 0.0
 
     def train(self):
@@ -65,11 +65,9 @@ class Model():
                 _, predicted = torch.max(predicted_labels.data, 2)
 
                 labels = labels.to(torch.int64)
-                total += labels.size(0)
-
+                total += (labels.size(0) * labels.size(1))
                 correct += (predicted == labels).sum().item()
-
-        print('Accuracy of the network on the 10000 test images: %d %%' % (
+        print('Accuracy of the network on test images: %d %%' % (
                 100 * correct / total))
 
 
