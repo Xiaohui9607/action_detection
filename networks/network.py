@@ -65,7 +65,8 @@ class network(nn.Module):
         # N * 32 * H * W -> N * 3 * H * W
         self.enc7 = nn.ConvTranspose2d(in_channels=lstm_size[6], out_channels=channels, kernel_size=1, stride=1)
 
-        self.fc1 = nn.Linear(12288, 20)
+        in_dim = int(self.channels * self.height * self.width)
+        self.fc1 = nn.Linear(in_dim, 20)
         self.fc2 = nn.Linear(20, NUM_BEHAVRIORS)
 
 
@@ -122,7 +123,7 @@ class network(nn.Module):
             enc6 = self.enc6_norm(torch.relu(self.enc6(lstm7)))
 
             enc7 = torch.relu(self.enc7(enc6))
-            enc7 = enc7.view(10, -1)
+            enc7 = enc7.view(self.opt.sequence_length, -1)
 
             fc1 = torch.relu(self.fc1(enc7))
             fc2 = torch.relu(self.fc2(fc1))
@@ -143,4 +144,4 @@ if __name__ == '__main__':
     opt = Options().parse()
     opt.batch_size = 2
 
-    my_network = network(opt)
+    a_network = network(opt)

@@ -114,7 +114,7 @@ if __name__ == '__main__':
         # imgs = list(map(lambda x: (x.permute([1, 2, 0]).numpy()*255).squeeze().astype(np.uint8), imgs))
         # for index, img in enumerate(imgs):
         #     cv2.imwrite('l_{}.png'.format(index), img)
-        #     exit(2)
+        #     exit(1)
 
         print(index)
         print(a.shape)

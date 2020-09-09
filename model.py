@@ -87,5 +87,5 @@ if __name__ == "__main__":
 
     opt = Options().parse()
     opt.batch_size = 2
-    my_model = Model(opt)
-    my_model.train()
+    a_model = Model(opt)
+    a_model.train()
