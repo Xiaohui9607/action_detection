@@ -5,8 +5,9 @@ from torchvision import transforms
 from torch.utils.data import DataLoader, Dataset
 import torch.nn.functional as F
 import numpy as np
+import random
 import pickle
-import dill
+# import dill
 
 IMG_EXTENSIONS = ('.pkl',)
 
@@ -28,7 +29,7 @@ def pickle_loader(path):
 
 
 class my_Dataset(Dataset):
-    def __init__(self, root, image_transform=None, loader=pickle_loader, device='cpu'):
+    def __init__(self, root, image_transform=None, loader=pickle_loader, device='cpu', seq=100):
         if not os.path.exists(root):
             raise FileExistsError('{0} does not exists!'.format(root))
 
@@ -41,32 +42,36 @@ class my_Dataset(Dataset):
                                 "Supported image extensions are: " + ",".join(IMG_EXTENSIONS)))
         self.loader = loader
         self.device = device
-
+        self.seq = seq
     def __getitem__(self, index):
         imgs_with_labels = self.loader(self.samples[index])
         vision = imgs_with_labels['images']
         labels = imgs_with_labels['labels']
+        st_idx = random.randint(0, vision.shape[0]-self.seq)
+        vision = vision[st_idx:st_idx+self.seq, ...]
+        labels = labels[st_idx:st_idx+self.seq, ...]
+        labels[labels==2]=1
         if self.image_transform is not None:
             vision = self.image_transform(vision)
 
         # return vision.to(self.device), torch.from_numpy(np.array(list(labels))).to(self.device)
-        return vision.to(self.device), torch.from_numpy(np.array(labels)).to(self.device)
+        return vision.to(self.device), torch.from_numpy(np.array(labels)).to(self.device).long()
 
     def __len__(self):
         return len(self.samples)
 
 def build_dataloader(opt):
 
-    def crop(im):
-        height, width = im.shape[:-1]
-        width = max(height, width)
-        im = im[:width, :width,]
-        return im
+    # def crop(im):
+    #     height, width = im.shape[:-1]
+    #     width = max(height, width)
+    #     im = im[:width, :width,]
+    #     return im
 
     image_transform = transforms.Compose([
-        transforms.Lambda(crop),
+        # transforms.Lambda(crop),
         transforms.ToPILImage(),
-        transforms.Resize((opt.height, opt.width)),
+        transforms.Resize((128,128)),
         transforms.ToTensor()
     ])
 

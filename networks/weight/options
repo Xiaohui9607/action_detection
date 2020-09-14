@@ -1,8 +1,8 @@
 ------------ Options -------------
 batch_size: 32
 channels: 3
-data_dir: ../data/watch-n-bot/fridge_k1/out
-device: cpu
+data_dir: /home/golf/code/data/watch-n-bot/fridge_k1/campos_2
+device: cuda
 epochs: 30
 height: 64
 learning_rate: 0.001
